@@ -12,10 +12,10 @@ class PostsController extends Controller {
     // controller methods
     public function getPosts() {
         $posts = new Post($this->conn);
-      
         $offset = $this->params['offset'] ?? 0;
         $limit = $this->params['limit'] ?? 6;
         if($posts->fetchPosts($offset, $limit)->success()) {
+            $num_pages = $posts->getNumPages();
             $posts = $posts->getPosts();
             include "views/posts.php";
         } else {
