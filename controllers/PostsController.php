@@ -10,14 +10,18 @@ class PostsController extends Controller {
     }
 
     // controller methods
-    public function getPosts() {
+    public function getPosts($api = false) {
         $posts = new Post($this->conn);
         $offset = $this->params['offset'] ?? 0;
         $limit = $this->params['limit'] ?? 6;
         if($posts->fetchPosts($offset, $limit)->success()) {
-            $num_pages = $posts->getNumPages();
-            $posts = $posts->getPosts();
-            include "views/posts.php";
+            if($api) {
+                echo json_encode($posts->getPosts());
+            } else {
+                $num_pages = $posts->getNumPages();
+                $posts = $posts->getPosts();
+                include "views/posts.php";
+            }
         } else {
             echo "error";
         }
@@ -40,20 +44,17 @@ class PostsController extends Controller {
     }
 
     public function create() {
-        var_dump($this->req);
-        var_dump($this->files);
-        FileManager::validateFile($this->files['image'], 5000000);
-        // $post = new Post($this->conn);
-        // if($post->validatePost($this->req)->success()) {
-        //    if($post->createNewPost()->success()) {
-        //     Messenger::setMsg("New post created!", "success");
-        //     header("Location: " . ROOT . "posts/get/" . $post->post_id);
-        //    }
-        // } else {
-        //     echo "this post has an error";
-        //     $errors = $post->errors;
-        //     include "views/create_post.php";
-        // }
+        $post = new Post($this->conn);
+        if($post->validatePost($this->req, $this->files)->success()) {
+           if($post->createNewPost()->success()) {
+            Messenger::setMsg("New post created!", "success");
+            header("Location: " . ROOT . "posts/get/" . $post->post_id);
+           }
+        } else {
+            echo "this post has an error";
+            $errors = $post->errors;
+            include "views/create_post.php";
+        }
     }
 
     public function delete() {
