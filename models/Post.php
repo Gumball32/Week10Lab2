@@ -8,6 +8,8 @@ class Post {
     public $post_img;
     public $post_user_id;
     public $conn;
+    public $offset;
+    public $limit;
     public $post = [];
     public $posts = [];
     public $errors = [];
@@ -35,6 +37,14 @@ class Post {
         }
         return $this;
     }
+
+    public function countNumPosts() {
+        $sql = "SELECT COUNT(id) AS num_posts FROM posts";
+        $stmt = $this->conn->query($sql);
+        $result = $stmt->fetch_assoc();
+        $this->num_posts = $result['num_posts'];
+    }
+
 
     public function fetchPosts($offset, $limit) {
         $this->offset = $offset;
